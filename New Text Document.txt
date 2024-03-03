@@ -1,0 +1,30 @@
+CREATE OR REPLACE FUNCTION get_students_by_user(user_id VARCHAR(50))
+RETURNS TABLE (
+    name VARCHAR(256),
+    age INT,
+    created_user VARCHAR(256),
+    updated_user VARCHAR(256),
+    subject1 VARCHAR(256),
+    mark1 VARCHAR(256),
+    subject2 VARCHAR(256),
+    mark2 VARCHAR(256),
+    id INT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        s.name,
+        s.age,
+        (SELECT u.username FROM users u WHERE u.id::VARCHAR(50) = s.created_user) AS created_user,
+        (SELECT u.username FROM users u WHERE u.id::VARCHAR(50) = s.updated_user) AS updated_user,
+        s.subject1,
+        s.mark1,
+        s.subject2,
+        s.mark2,
+        s.id
+    FROM
+        student s
+    WHERE
+        s.updated_user = user_id OR s.created_user = user_id;
+END; $$
+LANGUAGE plpgsql;
